@@ -1,6 +1,7 @@
 import pygame 
 import sys
 import random
+from Linked_List import Linked_List 
 
 WINDOW_SIZE = 825 
 CELL_SIZE = WINDOW_SIZE // 3
@@ -28,9 +29,9 @@ class TicTacToe:
                                    [(0,0), (1,1), (2,2)],
                                    [(0,2), (1,1), (2,0)]] 
         self.winner = None
-        self.game_steps = 0
         self.font = pygame.font.SysFont('Verdana', CELL_SIZE // 4, True)
-
+        self.piece_tracker = Linked_List() 
+        
     def check_winner(self):
         for line_indices in self.line_indices_array: #iterates over the array holding the eight lists of tuples in a line
             sum_line = sum([self.game_arr[i][j] for i, j in line_indices]) #calculates the sum of the values on the game board at the tuples in the line list 
@@ -50,8 +51,12 @@ class TicTacToe:
         if left_click and self.game_arr[row][col] == INF and not self.winner: #checks left_click is true and the grid cell is empty
             self.game_arr[row][col] = self.player #updates the cell to be the value of player (either true or false) which indicates that a player has made a move in that cell
             self.player = not self.player #assigns player to be the oposite boolean value indicating it is the other players turn
-            self.game_steps += 1 
-            self.check_winner() 
+            self.piece_tracker.append_element((row,col)) 
+        self.check_winner() 
+        if len(self.piece_tracker) == 9 and self.winner == None:
+            row, col = self.piece_tracker.get_element_at(0)
+            self.piece_tracker.remove_element_at(0) 
+            self.game_arr[row][col] = INF  
     
     def draw_objects(self):
         for y, row in enumerate(self.game_arr):
@@ -78,8 +83,6 @@ class TicTacToe:
     def print_caption(self):
         if self.winner != None:
             pygame.display.set_caption(f'Press the Space to Play Again!') 
-        elif self.game_steps == 9:
-            pygame.display.set_caption(f'Tie Game! Press Space to Play Again!')
         else:
             pygame.display.set_caption(f'Player "{"OX"[self.player]}" Turn!') #set_caption method displays text at top of screen and the f-string allows self.player to evaluate if it will dispaly an X or an O
 
